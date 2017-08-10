@@ -1,5 +1,5 @@
 <h2>cate</h2>
-__c__onvert __a__ndroid studio project __t__o __e__clipse workspace
+convert android studio project to eclipse workspace
 
 可以将Android Studio中的工程转为Eclipse可以导入的项目结构
 

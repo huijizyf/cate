@@ -1,0 +1,93 @@
+#!/bin/bash
+currentPath=$(cd `dirname $0`; pwd)
+
+sourcePath=$1
+destinationPath=$2
+
+if [ $# != 2 ]; then
+	echo -e "\\033[0;33musage: cate [Android Studio Project Path] [Destination Path]"
+	exit 1
+fi
+if [ ! -d "$sourcePath" ]; then  
+	echo -e "\\033[31msource path dosen't exist! please check your input"
+	exit 1
+fi 
+if [[ -e ${destinationPath} ]]; then
+	files="ls $destinationPath"
+	if [ ! -z "$files" ]; then
+		echo -e "\\033[31mdestination folder must be empty!"
+		exit 1
+	fi
+fi
+
+echo -e "\\033[0;32myou will convert your Android Studio Project from ${sourcePath} to ${destinationPath}"
+
+echo -e "\n\\033[0;32m--->create destination path"
+mkdir $destinationPath
+mkdir ${destinationPath}/src
+
+#复制AndroidManifest.xml
+echo -e "\n\\033[0;32m--->copy files"
+if [[ -e  ${sourcePath}/app/src/main/AndroidManifest.xml ]]; then
+		cp ${sourcePath}/app/src/main/AndroidManifest.xml ${destinationPath}/AndroidManifest.xml
+	else
+		echo -e "\\033[31mAndroidManifest.xml path dosen't exist!"
+		exit 1
+fi
+#复制源码文件和资源文件
+folds=( "assets" "res" "libs" "jni" )
+for fo in ${folds[@]}
+do
+	if [[ -e ${sourcePath}/app/src/main/${fo} ]]; then
+		echo "copy ${sourcePath}/app/src/main/${fo}  ----->  $destinationPath/${fo}"
+		cp -r ${sourcePath}/app/src/main/${fo} $destinationPath/${fo}
+	fi
+done
+echo "copy ${sourcePath}/app/src/main/java  ----->  $destinationPath/src"
+cp -r ${sourcePath}/app/src/main/java/* $destinationPath/src
+
+#处理Aidl文件
+if [[ -e ${sourcePath}/app/src/main/aidl ]]; then
+	echo -e "\n--------------------------------------------------------------------------------------"
+	echo "please copy your aild fils to $destinationPath "
+	echo "--------------------------------------------------------------------------------------"
+fi
+cat > ${destinationPath}/.project <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${destinationPath}</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.android.ide.eclipse.adt.ResourceManagerBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.android.ide.eclipse.adt.PreCompilerBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.android.ide.eclipse.adt.ApkBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>
+EOF
+
+echo -e "\nif you hava include some third part project by gradle you should handle it by your own"
+
+echo -e "\n\\033[0;32msuccess"

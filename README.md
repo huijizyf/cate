@@ -17,4 +17,5 @@ usage: cate [Android Studio Project Path] [Destination Path]
 ```
 
 <h2>Example</h2>
+
 ![](example.png)
